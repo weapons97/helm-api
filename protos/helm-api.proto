@@ -1,0 +1,485 @@
+// Copyright 2020 weapons97@gmail.com
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+option go_package = ".;helmapi";
+
+option java_multiple_files = true;
+option java_outer_classname = "HelmApiProto";
+option java_package = "weipeng.helmapi";
+
+package helmapi;
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+// import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+// import "google/protobuf/duration.proto";
+
+// HelmApiService
+service HelmApiService {
+  /* CreateContext 创建context
+      context 持有了k8s集群资源操作权限和harbor登录信息。所以这些信息可以通过context复用。
+      The context holds k8s cluster resource operation authority and harbor login information. So this information can be reuse through context.
+  */
+  rpc CreateContext(HelmContextReq) returns (HelmContextRes) {
+    option (google.api.http) = {
+      post: "/v1/context"
+      body: "*"
+    };
+  }
+  // DeleteContext 删除context
+  rpc DeleteContext (DeleteHelmContextReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/context/{name}"
+    };
+  }
+  // UpdateRepo 更新context 内repo 信息
+  rpc UpdateRepo (UpdateRepoReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/{contextName}/repo"
+      body: "*"
+    };
+  }
+  // InstallRelease 安装charts
+  rpc InstallRelease (InstallReq) returns (Release) {
+    option (google.api.http) = {
+      post: "/v1/{contextName}/release"
+      body: "*"
+    };
+  }
+  // UpgradeRelease 更新release
+  rpc UpgradeRelease (UpgradeReq) returns (Release) {
+    option (google.api.http) = {
+      put: "/v1/{contextName}/release"
+      body: "*"
+    };
+  }
+  // UninstallRelease 删除release
+  rpc UninstallRelease(ReleaseReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{contextName}/release/{releaseName}"
+      body: "*"
+    };
+  }
+  // GetChart 获取 chart 信息
+  rpc GetChart (GetChartReq) returns (Chart) {
+    option (google.api.http) = {
+      post: "/v1/{contextName}/chart/{repo}/{chartName}/{chartVersion}"
+      body: "*"
+    };
+  }
+  // GetRelease 获取某个release实例信息
+  rpc GetRelease(ReleaseReq) returns (Release) {
+    option (google.api.http) = {
+      get: "/v1/{contextName}/release/{releaseName}"
+    };
+  }
+  // GetReleaseValues 某个release实例values信息
+  rpc GetReleaseValues(ReleaseReq) returns (Values) {
+    option (google.api.http) = {
+      post: "/v1/{contextName}/release/{releaseName}/values"
+      body: "*"
+    };
+  }
+  // ListRelease 列出某个context下全部release.
+  rpc ListRelease(ListReleaseReq) returns (ListReleaseRes) {
+    option (google.api.http) = {
+      post: "/v1/{contextName}/release"
+      body: "*"
+    };
+  }
+  // RollbackRelease 回滚某个release
+  rpc RollbackRelease(ReleaseRollbackReq) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/{contextName}/release/{releaseName}/rollback"
+      body: "*"
+    };
+  }
+  // GetReleaseHistory 列出release 历史
+  rpc GetReleaseHistory(ReleaseReq) returns (ListReleaseRes) {
+    option (google.api.http) = {
+      post: "/v1/{contextName}/release/{releaseName}/history"
+      body: "*"
+    };
+  }
+  // Search search charts
+  rpc Search(SearchReq) returns (SearchRes) {
+    option (google.api.http) = {
+      get: "/v1/{contextName}/search/{keyword}/{regexp}"
+    };
+  }
+  // list all charts
+  rpc All(ListChartReq) returns (SearchRes) {
+    option (google.api.http) = {
+      get: "/v1/{contextName}/chart"
+    };
+  }
+}
+// Entry represents a collection of parameters for chart repository.
+message Entry {
+  string name = 1;
+  string url = 2;
+  string username = 3;
+  string password = 4;
+  string certFile = 5;
+  string keyFile = 6;
+  string caFile = 7;
+  bool insecure_skip_tls_verify = 8;
+}
+
+// HelmContextReq 
+message HelmContextReq {
+  // name is what context name you what, and if null will gennerate a random name.
+  string name = 1;
+  // KubeInfo
+  KubeInfo kubeinfo = 2;
+  // RepoInfo
+  RepoInfo repoinfo = 3;
+  // If incluster is true, use serviceaccount instead of KubeInfo for authorization.
+  bool incluster = 6;
+  // if expiry is not null, context will delete after expiry
+  int64 expiry = 7;
+}
+
+message KubeInfo {
+    // kubeconfig is a content of kubeconfig, ignored when incluster is true.
+    string kubeconfig = 3;
+    // context is context of your kubeconfig, ignored when incluster is true.
+    string context = 4;
+    // namespace is namespace in k8s what your helmcontext managing.
+    string namespace = 5;
+}
+
+message RepoInfo {
+  // entrys is infomation for repo login and repo update.
+  repeated Entry entrys = 2;
+}
+
+// DeleteHelmContextReq 
+message DeleteHelmContextReq {
+  // name is what context name you what delete.
+  string name = 1;
+}
+
+message UpdateRepoReq {
+   // contextName is what context name you what, and if null will gennerate a random name.
+   string contextName = 1;
+   RepoInfo repoinfo  = 2;
+}
+
+// HelmContextRes
+message HelmContextRes {
+  string name = 1;
+}
+
+// InstallReq represents a infomation of install charts.
+message InstallReq {
+  // contextName is name of CreateHelmContext return (option)
+  string contextName = 1;
+  string repoChartName = 2;
+  string chartVersion = 3;
+  // if namespace is null it server will use context namespace
+  string namespace = 4;
+  // values as same as --values which specify values in YAML format
+  string values = 6;
+  string releaseName = 7;
+  // dry_run simulate an install
+  bool dry_run = 9;
+  // KubeInfo or contextName
+  KubeInfo kubeinfo = 12;
+  // RepoInfo or contextName
+  RepoInfo repoinfo = 13;
+}
+
+// UpgradeReq represents a infomation of upgrade release.
+message UpgradeReq {
+  // contextName is name of CreateHelmContext return
+  string contextName = 1;
+  string repoChartName = 2;
+  string chartVersion = 3;
+  // if namespace is null it server will use context namespace
+  string namespace = 4;
+  // values as same as --values which specify values in YAML format
+  string values = 6;
+  string releaseName = 7;
+  // dry_run simulate an install
+  bool dry_run = 9;
+  // history_max is max count of history
+  int32 history_max = 10;
+  // reset_values will reset the values to the chart's built-ins rather than merging with existing.
+  bool reset_values = 11;
+  // KubeInfo or contextName
+  KubeInfo kubeinfo = 12;
+  // RepoInfo or contextName
+  RepoInfo repoinfo = 13;
+}
+
+message GetChartReq {
+	// contextName is name of CreateHelmContext return
+	string contextName = 1;
+	// repo is name of entry your used create or update repository
+	string repo = 2;
+	string chartName = 3;
+  string chartVersion = 4;
+  // RepoInfo or contextName
+  RepoInfo repoinfo = 11;
+}
+message ReleaseReq {
+	// contextName is name of CreateHelmContext return
+	string contextName = 1;
+  string releaseName = 2;
+  // if namespace is null it server will use context namespace
+  string namespace = 4;
+  // KubeInfo or contextName
+  KubeInfo kubeinfo = 10;
+}
+
+message ReleaseRollbackReq {
+	// contextName is name of CreateHelmContext return
+	string contextName = 1;
+  string releaseName = 2;
+  int32 reversion = 3;
+  // if namespace is null it server will use context namespace
+  string namespace = 4;
+  // KubeInfo or contextName
+  KubeInfo kubeinfo = 10;
+  // RepoInfo or contextName
+  RepoInfo repoinfo = 11;
+}
+
+message Values {
+	// yaml is default
+	string yaml = 1;
+}
+
+message ListReleaseReq {
+	// contextName is name of CreateHelmContext return
+  string contextName = 1;
+  // if namespace is null it server will use context namespace
+  string namespace = 4;
+  // KubeInfo or contextName
+  KubeInfo kubeinfo = 10;
+}
+
+message ListReleaseRes {
+	repeated Release releases = 1;
+}
+
+// File represents a file as a name/value pair.
+//
+// By convention, name is a relative path within the scope of the chart's
+// base directory.
+message File {
+	// Name is the path-like name of the template.
+	string name = 1;
+	// Data is the template as byte data.
+	string data = 2;
+}
+
+// Dependency describes a chart upon which another chart depends.
+//
+// Dependencies can be used to express developer intent, or to capture the state
+// of a chart.
+message Dependency {
+	// Name is the name of the dependency.
+	//
+	// This must mach the name in the dependency's Chart.yaml.
+	string name = 1;
+	// Version is the version (range) of this chart.
+	//
+	// A lock file will always produce a single version, while a dependency
+	// may contain a semantic version range.
+	string version = 2;
+	// The URL to the repository.
+	//
+	// Appending `index.yaml` to this string should result in a URL that can be
+	// used to fetch the repository index.
+	string repository = 3;
+	// A yaml path that resolves to a boolean, used for enabling/disabling charts (e.g. subchart1.enabled )
+	string condition = 4;
+	// Tags can be used to group charts for enabling/disabling together
+	repeated string tags = 5;
+	// Enabled bool determines if chart should be loaded
+	bool enabled = 6;
+	// ImportValues holds the mapping of source values to parent key to be imported. Each item can be a
+  // string or pair of child/parent sublist items.
+	string import_values = 7;
+	// Alias usable alias to be used for the chart
+	string alias = 8;
+}
+
+// Maintainer describes a Chart maintainer.
+message Maintainer {
+  // Name is a user name or organization name
+  string name = 1;
+  // Email is an optional email address to contact the named maintainer
+  string email = 2;
+  // URL is an optional URL to an address for the named maintainer
+  string url = 3;
+}
+
+
+// Metadata for a Chart file. This models the structure of a Chart.yaml file.
+message Metadata {
+	// The name of the chart
+	string name = 1;
+	// The URL to a relevant project page, git repo, or contact person
+	string home = 2;
+	// Source is the URL to the source code of this chart
+	repeated string sources = 3;
+	// A SemVer 2 conformant version string of the chart
+	string version = 4;
+	// A one-sentence description of the chart
+	string description = 5;
+	// A list of string keywords
+	repeated string keywords = 6;
+	// A list of name and URL/email address combinations for the maintainer(s)
+	repeated Maintainer maintainers = 7;
+	// The URL to an icon file.
+	string icon = 8;
+	// The API Version of this chart.
+	string api_version = 9;
+	// The condition to check to enable chart
+	string condition = 10;
+	// The tags to check to enable chart
+	string tags = 11;
+	// The version of the application enclosed inside of this chart.
+	string app_version = 12;
+	// Whether or not this chart is deprecated
+	bool deprecated = 13;
+	// Annotations are additional mappings uninterpreted by Helm,
+	// made available for inspection by other applications.
+	map<string, string> annotations = 14;
+	// KubeVersion is a SemVer constraint specifying the version of Kubernetes required.
+	string kubeVersion = 15;
+	// Dependencies are a list of dependencies for a chart.
+	repeated Dependency dependencies = 16;
+	// Specifies the chart type: application or library
+	string type = 17;
+}
+
+// Info describes release information.
+message Info {
+	// FirstDeployed is when the release was first deployed.
+	google.protobuf.Timestamp first_deployed = 1;
+	// LastDeployed is when the release was last deployed.
+	google.protobuf.Timestamp last_deployed = 2;
+	// Deleted tracks when this object was deleted.
+  google.protobuf.Timestamp deleted = 3;
+	// Description is human-friendly "log entry" about this release.
+	string description = 4;
+	// Status is the current state of the release
+  string status = 5;
+	// Contains the rendered templates/NOTES.txt if available
+	string notes = 6;
+}
+
+// Chart is a helm package that contains metadata, a default config, zero or more
+// optionally parameterizable templates, and zero or more charts (dependencies).
+message Chart {
+	// Metadata is the contents of the Chartfile.
+  Metadata metadata = 1;
+  
+	// Templates for this chart.
+  repeated File templates = 2;
+  // Values are default config for this chart.
+	string values = 3;
+	// Schema is an optional JSON schema for imposing structure on Values
+	string schema = 4;
+	// Files are miscellaneous files in a chart archive,
+	// e.g. README, LICENSE, etc.
+	repeated File files = 5;
+}
+
+// A HookExecution records the result for the last execution of a hook for a given release.
+message HookExecution {
+	// StartedAt indicates the date/time this hook was started
+	google.protobuf.Timestamp started_at = 1;
+	// CompletedAt indicates the date/time this hook was completed.
+	google.protobuf.Timestamp completed_at = 2;
+	// Phase indicates whether the hook completed successfully
+	string phase = 3;
+}
+
+// Hook defines a hook object.
+message Hook {
+	string name = 1;
+	// Kind is the Kubernetes kind.
+	string kind = 2;
+	// Path is the chart-relative path to the template.
+	string path = 3;
+	// Manifest is the manifest contents.
+	string manifest = 4;
+	// Events are the events that this hook fires on.
+	repeated string events = 5;
+	// LastRun indicates the date/time this was last run.
+	HookExecution last_run = 6;
+	// Weight indicates the sort order for execution among similar Hook type
+	int64 weight = 7;
+	// DeletePolicies are the policies that indicate when to delete the hook
+	repeated string delete_policies = 8;
+}
+
+// Release describes a deployment of a chart, together with the chart
+// and the variables used to deploy that chart.
+message Release {
+  	// Name is the name of the release
+	string name = 1;
+	// Info provides information about a release
+	Info info = 2;
+	// Chart is the chart that was released.
+	Chart chart = 3;
+	// Config is the set of extra Values added to the chart.
+  // These values override the default values inside of the chart.
+	string config = 4;
+	// Manifest is the string representation of the rendered template.
+	string manifest = 5;
+	// Hooks are all of the hooks declared for this release.
+	repeated Hook hooks = 6;
+	// Version is an int which represents the version of the release.
+	int64 version = 7;
+	// Namespace is the kubernetes namespace of the release.
+	string namespace = 8;
+}
+message ChartInfo {
+  string name = 1;
+  string repo_name = 2;
+  string chart_version = 3;
+  string app_version = 4;
+  string description = 5;
+  string icon = 6;
+}
+message SearchRes {
+   repeated ChartInfo charts = 1;
+}
+// SearchReq
+message SearchReq {
+  string keyword = 2;
+  // use regular expressions for searching repositories you have added  
+  bool regexp = 3;
+  // contextName is name of CreateHelmContext return
+  string contextName = 5;
+  // RepoInfo or contextName
+  RepoInfo repoinfo = 11;
+}
+
+message ListChartReq {
+  // contextName is name of CreateHelmContext return
+  string contextName = 1;
+  // RepoInfo or contextName
+  RepoInfo repoinfo = 11;
+}

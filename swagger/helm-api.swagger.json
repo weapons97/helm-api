@@ -1,0 +1,1283 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "helm-api.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/context": {
+      "post": {
+        "summary": "CreateContext 创建context\ncontext 持有了k8s集群资源操作权限和harbor登录信息。所以这些信息可以通过context复用。\nThe context holds k8s cluster resource operation authority and harbor login information. So this information can be reuse through context.",
+        "operationId": "HelmApiService_CreateContext",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiHelmContextRes"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiHelmContextReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/context/{name}": {
+      "delete": {
+        "summary": "DeleteContext 删除context",
+        "operationId": "HelmApiService_DeleteContext",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "description": "name is what context name you what delete.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/chart": {
+      "get": {
+        "summary": "list all charts",
+        "operationId": "HelmApiService_All",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiSearchRes"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/chart/{repo}/{chartName}/{chartVersion}": {
+      "post": {
+        "summary": "GetChart 获取 chart 信息",
+        "operationId": "HelmApiService_GetChart",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiChart"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "repo",
+            "description": "repo is name of entry your used create or update repository",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "chartName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "chartVersion",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiGetChartReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/release": {
+      "post": {
+        "summary": "ListRelease 列出某个context下全部release.",
+        "operationId": "HelmApiService_ListRelease",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiListReleaseRes"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiListReleaseReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      },
+      "put": {
+        "summary": "UpgradeRelease 更新release",
+        "operationId": "HelmApiService_UpgradeRelease",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiRelease"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiUpgradeReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/release/{releaseName}": {
+      "get": {
+        "summary": "GetRelease 获取某个release实例信息",
+        "operationId": "HelmApiService_GetRelease",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiRelease"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "releaseName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "namespace",
+            "description": "if namespace is null it server will use context namespace.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "kubeinfo.kubeconfig",
+            "description": "kubeconfig is a content of kubeconfig, ignored when incluster is true.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "kubeinfo.context",
+            "description": "context is context of your kubeconfig, ignored when incluster is true.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "kubeinfo.namespace",
+            "description": "namespace is namespace in k8s what your helmcontext managing.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      },
+      "delete": {
+        "summary": "UninstallRelease 删除release",
+        "operationId": "HelmApiService_UninstallRelease",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "releaseName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiReleaseReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/release/{releaseName}/history": {
+      "post": {
+        "summary": "GetReleaseHistory 列出release 历史",
+        "operationId": "HelmApiService_GetReleaseHistory",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiListReleaseRes"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "releaseName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiReleaseReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/release/{releaseName}/rollback": {
+      "put": {
+        "summary": "RollbackRelease 回滚某个release",
+        "operationId": "HelmApiService_RollbackRelease",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "releaseName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiReleaseRollbackReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/release/{releaseName}/values": {
+      "post": {
+        "summary": "GetReleaseValues 某个release实例values信息",
+        "operationId": "HelmApiService_GetReleaseValues",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiValues"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "releaseName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiReleaseReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/repo": {
+      "put": {
+        "summary": "UpdateRepo 更新context 内repo 信息",
+        "operationId": "HelmApiService_UpdateRepo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is what context name you what, and if null will gennerate a random name.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/helmapiUpdateRepoReq"
+            }
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    },
+    "/v1/{contextName}/search/{keyword}/{regexp}": {
+      "get": {
+        "summary": "Search search charts",
+        "operationId": "HelmApiService_Search",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/helmapiSearchRes"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contextName",
+            "description": "contextName is name of CreateHelmContext return",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "keyword",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "regexp",
+            "description": "use regular expressions for searching repositories you have added",
+            "in": "path",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "HelmApiService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "helmapiChart": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/helmapiMetadata",
+          "description": "Metadata is the contents of the Chartfile."
+        },
+        "templates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiFile"
+          },
+          "description": "Templates for this chart."
+        },
+        "values": {
+          "type": "string",
+          "description": "Values are default config for this chart."
+        },
+        "schema": {
+          "type": "string",
+          "title": "Schema is an optional JSON schema for imposing structure on Values"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiFile"
+          },
+          "description": "Files are miscellaneous files in a chart archive,\ne.g. README, LICENSE, etc."
+        }
+      },
+      "description": "Chart is a helm package that contains metadata, a default config, zero or more\noptionally parameterizable templates, and zero or more charts (dependencies)."
+    },
+    "helmapiChartInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "repoName": {
+          "type": "string"
+        },
+        "chartVersion": {
+          "type": "string"
+        },
+        "appVersion": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      }
+    },
+    "helmapiDependency": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name is the name of the dependency.\n\nThis must mach the name in the dependency's Chart.yaml."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version is the version (range) of this chart.\n\nA lock file will always produce a single version, while a dependency\nmay contain a semantic version range."
+        },
+        "repository": {
+          "type": "string",
+          "description": "The URL to the repository.\n\nAppending `index.yaml` to this string should result in a URL that can be\nused to fetch the repository index."
+        },
+        "condition": {
+          "type": "string",
+          "title": "A yaml path that resolves to a boolean, used for enabling/disabling charts (e.g. subchart1.enabled )"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags can be used to group charts for enabling/disabling together"
+        },
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled bool determines if chart should be loaded"
+        },
+        "importValues": {
+          "type": "string",
+          "description": "ImportValues holds the mapping of source values to parent key to be imported. Each item can be a\nstring or pair of child/parent sublist items."
+        },
+        "alias": {
+          "type": "string",
+          "title": "Alias usable alias to be used for the chart"
+        }
+      },
+      "description": "Dependency describes a chart upon which another chart depends.\n\nDependencies can be used to express developer intent, or to capture the state\nof a chart."
+    },
+    "helmapiEntry": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "certFile": {
+          "type": "string"
+        },
+        "keyFile": {
+          "type": "string"
+        },
+        "caFile": {
+          "type": "string"
+        },
+        "insecureSkipTlsVerify": {
+          "type": "boolean"
+        }
+      },
+      "description": "Entry represents a collection of parameters for chart repository."
+    },
+    "helmapiFile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name is the path-like name of the template."
+        },
+        "data": {
+          "type": "string",
+          "description": "Data is the template as byte data."
+        }
+      },
+      "description": "File represents a file as a name/value pair.\n\nBy convention, name is a relative path within the scope of the chart's\nbase directory."
+    },
+    "helmapiGetChartReq": {
+      "type": "object",
+      "properties": {
+        "contextName": {
+          "type": "string",
+          "title": "contextName is name of CreateHelmContext return"
+        },
+        "repo": {
+          "type": "string",
+          "title": "repo is name of entry your used create or update repository"
+        },
+        "chartName": {
+          "type": "string"
+        },
+        "chartVersion": {
+          "type": "string"
+        },
+        "repoinfo": {
+          "$ref": "#/definitions/helmapiRepoInfo",
+          "title": "RepoInfo or contextName"
+        }
+      }
+    },
+    "helmapiHelmContextReq": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "name is what context name you what, and if null will gennerate a random name."
+        },
+        "kubeinfo": {
+          "$ref": "#/definitions/helmapiKubeInfo",
+          "title": "KubeInfo"
+        },
+        "repoinfo": {
+          "$ref": "#/definitions/helmapiRepoInfo",
+          "title": "RepoInfo"
+        },
+        "incluster": {
+          "type": "boolean",
+          "description": "If incluster is true, use serviceaccount instead of KubeInfo for authorization."
+        },
+        "expiry": {
+          "type": "string",
+          "format": "int64",
+          "title": "if expiry is not null, context will delete after expiry"
+        }
+      },
+      "title": "HelmContextReq"
+    },
+    "helmapiHelmContextRes": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "title": "HelmContextRes"
+    },
+    "helmapiHook": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "description": "Kind is the Kubernetes kind."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path is the chart-relative path to the template."
+        },
+        "manifest": {
+          "type": "string",
+          "description": "Manifest is the manifest contents."
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Events are the events that this hook fires on."
+        },
+        "lastRun": {
+          "$ref": "#/definitions/helmapiHookExecution",
+          "description": "LastRun indicates the date/time this was last run."
+        },
+        "weight": {
+          "type": "string",
+          "format": "int64",
+          "title": "Weight indicates the sort order for execution among similar Hook type"
+        },
+        "deletePolicies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "DeletePolicies are the policies that indicate when to delete the hook"
+        }
+      },
+      "description": "Hook defines a hook object."
+    },
+    "helmapiHookExecution": {
+      "type": "object",
+      "properties": {
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "StartedAt indicates the date/time this hook was started"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "CompletedAt indicates the date/time this hook was completed."
+        },
+        "phase": {
+          "type": "string",
+          "title": "Phase indicates whether the hook completed successfully"
+        }
+      },
+      "description": "A HookExecution records the result for the last execution of a hook for a given release."
+    },
+    "helmapiInfo": {
+      "type": "object",
+      "properties": {
+        "firstDeployed": {
+          "type": "string",
+          "format": "date-time",
+          "description": "FirstDeployed is when the release was first deployed."
+        },
+        "lastDeployed": {
+          "type": "string",
+          "format": "date-time",
+          "description": "LastDeployed is when the release was last deployed."
+        },
+        "deleted": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Deleted tracks when this object was deleted."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description is human-friendly \"log entry\" about this release."
+        },
+        "status": {
+          "type": "string",
+          "title": "Status is the current state of the release"
+        },
+        "notes": {
+          "type": "string",
+          "title": "Contains the rendered templates/NOTES.txt if available"
+        }
+      },
+      "description": "Info describes release information."
+    },
+    "helmapiInstallReq": {
+      "type": "object",
+      "properties": {
+        "contextName": {
+          "type": "string",
+          "title": "contextName is name of CreateHelmContext return (option)"
+        },
+        "repoChartName": {
+          "type": "string"
+        },
+        "chartVersion": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string",
+          "title": "if namespace is null it server will use context namespace"
+        },
+        "values": {
+          "type": "string",
+          "title": "values as same as --values which specify values in YAML format"
+        },
+        "releaseName": {
+          "type": "string"
+        },
+        "dryRun": {
+          "type": "boolean",
+          "title": "dry_run simulate an install"
+        },
+        "kubeinfo": {
+          "$ref": "#/definitions/helmapiKubeInfo",
+          "title": "KubeInfo or contextName"
+        },
+        "repoinfo": {
+          "$ref": "#/definitions/helmapiRepoInfo",
+          "title": "RepoInfo or contextName"
+        }
+      },
+      "description": "InstallReq represents a infomation of install charts."
+    },
+    "helmapiKubeInfo": {
+      "type": "object",
+      "properties": {
+        "kubeconfig": {
+          "type": "string",
+          "description": "kubeconfig is a content of kubeconfig, ignored when incluster is true."
+        },
+        "context": {
+          "type": "string",
+          "description": "context is context of your kubeconfig, ignored when incluster is true."
+        },
+        "namespace": {
+          "type": "string",
+          "description": "namespace is namespace in k8s what your helmcontext managing."
+        }
+      }
+    },
+    "helmapiListReleaseReq": {
+      "type": "object",
+      "properties": {
+        "contextName": {
+          "type": "string",
+          "title": "contextName is name of CreateHelmContext return"
+        },
+        "namespace": {
+          "type": "string",
+          "title": "if namespace is null it server will use context namespace"
+        },
+        "kubeinfo": {
+          "$ref": "#/definitions/helmapiKubeInfo",
+          "title": "KubeInfo or contextName"
+        }
+      }
+    },
+    "helmapiListReleaseRes": {
+      "type": "object",
+      "properties": {
+        "releases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiRelease"
+          }
+        }
+      }
+    },
+    "helmapiMaintainer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name is a user name or organization name"
+        },
+        "email": {
+          "type": "string",
+          "title": "Email is an optional email address to contact the named maintainer"
+        },
+        "url": {
+          "type": "string",
+          "title": "URL is an optional URL to an address for the named maintainer"
+        }
+      },
+      "description": "Maintainer describes a Chart maintainer."
+    },
+    "helmapiMetadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The name of the chart"
+        },
+        "home": {
+          "type": "string",
+          "title": "The URL to a relevant project page, git repo, or contact person"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Source is the URL to the source code of this chart"
+        },
+        "version": {
+          "type": "string",
+          "title": "A SemVer 2 conformant version string of the chart"
+        },
+        "description": {
+          "type": "string",
+          "title": "A one-sentence description of the chart"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "A list of string keywords"
+        },
+        "maintainers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiMaintainer"
+          },
+          "title": "A list of name and URL/email address combinations for the maintainer(s)"
+        },
+        "icon": {
+          "type": "string",
+          "description": "The URL to an icon file."
+        },
+        "apiVersion": {
+          "type": "string",
+          "description": "The API Version of this chart."
+        },
+        "condition": {
+          "type": "string",
+          "title": "The condition to check to enable chart"
+        },
+        "tags": {
+          "type": "string",
+          "title": "The tags to check to enable chart"
+        },
+        "appVersion": {
+          "type": "string",
+          "description": "The version of the application enclosed inside of this chart."
+        },
+        "deprecated": {
+          "type": "boolean",
+          "title": "Whether or not this chart is deprecated"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations are additional mappings uninterpreted by Helm,\nmade available for inspection by other applications."
+        },
+        "kubeVersion": {
+          "type": "string",
+          "description": "KubeVersion is a SemVer constraint specifying the version of Kubernetes required."
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiDependency"
+          },
+          "description": "Dependencies are a list of dependencies for a chart."
+        },
+        "type": {
+          "type": "string",
+          "title": "Specifies the chart type: application or library"
+        }
+      },
+      "description": "Metadata for a Chart file. This models the structure of a Chart.yaml file."
+    },
+    "helmapiRelease": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name is the name of the release"
+        },
+        "info": {
+          "$ref": "#/definitions/helmapiInfo",
+          "title": "Info provides information about a release"
+        },
+        "chart": {
+          "$ref": "#/definitions/helmapiChart",
+          "description": "Chart is the chart that was released."
+        },
+        "config": {
+          "type": "string",
+          "description": "Config is the set of extra Values added to the chart.\nThese values override the default values inside of the chart."
+        },
+        "manifest": {
+          "type": "string",
+          "description": "Manifest is the string representation of the rendered template."
+        },
+        "hooks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiHook"
+          },
+          "description": "Hooks are all of the hooks declared for this release."
+        },
+        "version": {
+          "type": "string",
+          "format": "int64",
+          "description": "Version is an int which represents the version of the release."
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Namespace is the kubernetes namespace of the release."
+        }
+      },
+      "description": "Release describes a deployment of a chart, together with the chart\nand the variables used to deploy that chart."
+    },
+    "helmapiReleaseReq": {
+      "type": "object",
+      "properties": {
+        "contextName": {
+          "type": "string",
+          "title": "contextName is name of CreateHelmContext return"
+        },
+        "releaseName": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string",
+          "title": "if namespace is null it server will use context namespace"
+        },
+        "kubeinfo": {
+          "$ref": "#/definitions/helmapiKubeInfo",
+          "title": "KubeInfo or contextName"
+        }
+      }
+    },
+    "helmapiReleaseRollbackReq": {
+      "type": "object",
+      "properties": {
+        "contextName": {
+          "type": "string",
+          "title": "contextName is name of CreateHelmContext return"
+        },
+        "releaseName": {
+          "type": "string"
+        },
+        "reversion": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "namespace": {
+          "type": "string",
+          "title": "if namespace is null it server will use context namespace"
+        },
+        "kubeinfo": {
+          "$ref": "#/definitions/helmapiKubeInfo",
+          "title": "KubeInfo or contextName"
+        },
+        "repoinfo": {
+          "$ref": "#/definitions/helmapiRepoInfo",
+          "title": "RepoInfo or contextName"
+        }
+      }
+    },
+    "helmapiRepoInfo": {
+      "type": "object",
+      "properties": {
+        "entrys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiEntry"
+          },
+          "description": "entrys is infomation for repo login and repo update."
+        }
+      }
+    },
+    "helmapiSearchRes": {
+      "type": "object",
+      "properties": {
+        "charts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/helmapiChartInfo"
+          }
+        }
+      }
+    },
+    "helmapiUpdateRepoReq": {
+      "type": "object",
+      "properties": {
+        "contextName": {
+          "type": "string",
+          "description": "contextName is what context name you what, and if null will gennerate a random name."
+        },
+        "repoinfo": {
+          "$ref": "#/definitions/helmapiRepoInfo"
+        }
+      }
+    },
+    "helmapiUpgradeReq": {
+      "type": "object",
+      "properties": {
+        "contextName": {
+          "type": "string",
+          "title": "contextName is name of CreateHelmContext return"
+        },
+        "repoChartName": {
+          "type": "string"
+        },
+        "chartVersion": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string",
+          "title": "if namespace is null it server will use context namespace"
+        },
+        "values": {
+          "type": "string",
+          "title": "values as same as --values which specify values in YAML format"
+        },
+        "releaseName": {
+          "type": "string"
+        },
+        "dryRun": {
+          "type": "boolean",
+          "title": "dry_run simulate an install"
+        },
+        "historyMax": {
+          "type": "integer",
+          "format": "int32",
+          "title": "history_max is max count of history"
+        },
+        "resetValues": {
+          "type": "boolean",
+          "description": "reset_values will reset the values to the chart's built-ins rather than merging with existing."
+        },
+        "kubeinfo": {
+          "$ref": "#/definitions/helmapiKubeInfo",
+          "title": "KubeInfo or contextName"
+        },
+        "repoinfo": {
+          "$ref": "#/definitions/helmapiRepoInfo",
+          "title": "RepoInfo or contextName"
+        }
+      },
+      "description": "UpgradeReq represents a infomation of upgrade release."
+    },
+    "helmapiValues": {
+      "type": "object",
+      "properties": {
+        "yaml": {
+          "type": "string",
+          "title": "yaml is default"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

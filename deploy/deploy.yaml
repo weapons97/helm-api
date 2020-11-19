@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: helm-api
+  name: helm-api
+  namespace: helm-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helm-api
+  template:
+    metadata:
+      labels:
+        app: helm-api
+    spec:
+      serviceAccountName: helm-api
+      containers:
+      - env:
+        - name: HELM_API_TMP # TMP is where helm-api store repo info
+          value: /var/tmp/helm-api
+        - name: HELM_API_LOGLEVEL
+          value: debug
+        - name: HELM_API_HTTP_PORT
+          value: "8661"
+        - name: HELM_API_PORT
+          value: "8848"
+        image: weapons97/helm-api:1.0.0
+        imagePullPolicy: Always
+        name: helm-api
+        ports:
+        - containerPort: 8661
+          name: http
+          protocol: TCP
+        - containerPort: 8848
+          name: grpc
+          protocol: TCP
+        volumeMounts:
+        # - mountPath: /var/tmp/helm-api
+        #   name: tmpdir
+      volumes:
+      # - name: tmpdir
+      #   persistentVolumeClaim:
+      #     claimName: helmapi-pvc

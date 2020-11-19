@@ -1,0 +1,17 @@
+**/.DS_Store
+**/.vscode
+**/_tmp
+.env
+bin/
+.idea/
+vendor/
+helm-api
+/pkg/helm/tmp/
+/pkg/helm/adapter/helmAdapterSecrets_test.go
+/pkg/helm/helmSecrets_test.go
+/pkg/helm/testdata/
+/pkg/helm/adapter/testdata/
+/examples/bash/body.json
+/examples/workload.yaml
+/examples/xxx.json
+/examples/yaml2json.js
