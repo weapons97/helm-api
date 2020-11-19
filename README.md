@@ -1,53 +1,50 @@
 # helm-api
 
-通过grpc 和 http 接口部署 helm charts (仅支持3.0.0+)
-deploy your helm charts for Kubernetes via GRPC AND HTTP endpoints （only for 3.0.0+）
+通过 grpc 和 http 接口部署 helm charts (仅支持3.0.0+)
 
-### When to use this solution
+### 为什么要使用helm-api
 
-- Automating deployments in the cluster.
-- Programmatically managing the cluster from the code.
+- 有时候您希望通过程序在集群上部署和管理helm release。
+- 有时候您希望通过http接口在集群上部署和管理helm release。
 
-## Coverage
+## 实现接口
 
-HelmApiService
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| CreateContext | [HelmContextReq](#helmapi.HelmContextReq) | [HelmContextRes](#helmapi.HelmContextRes) | CreateContext 创建context |
+| DeleteContext | [DeleteHelmContextReq](#helmapi.DeleteHelmContextReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | DeleteContext 删除context |
+| UpdateRepo | [UpdateRepoReq](#helmapi.UpdateRepoReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | UpdateRepo 更新context 内repo 信息 |
+| InstallRelease | [InstallReq](#helmapi.InstallReq) | [Release](#helmapi.Release) | InstallRelease 安装charts |
+| UpgradeRelease | [UpgradeReq](#helmapi.UpgradeReq) | [Release](#helmapi.Release) | UpgradeRelease 更新release |
+| UninstallRelease | [ReleaseReq](#helmapi.ReleaseReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | UninstallRelease 删除release |
+| GetChart | [GetChartReq](#helmapi.GetChartReq) | [Chart](#helmapi.Chart) | GetChart 获取 chart 信息 |
+| GetRelease | [ReleaseReq](#helmapi.ReleaseReq) | [Release](#helmapi.Release) | GetRelease 获取某个release实例信息 |
+| GetReleaseValues | [ReleaseReq](#helmapi.ReleaseReq) | [Values](#helmapi.Values) | GetReleaseValues 某个release实例values信息 |
+| ListRelease | [ListReleaseReq](#helmapi.ListReleaseReq) | [ListReleaseRes](#helmapi.ListReleaseRes) | ListRelease 列出某个context下全部release. |
+| RollbackRelease | [ReleaseRollbackReq](#helmapi.ReleaseRollbackReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | RollbackRelease 回滚某个release |
+| GetReleaseHistory | [ReleaseReq](#helmapi.ReleaseReq) | [ListReleaseRes](#helmapi.ListReleaseRes) | GetReleaseHistory 列出release 历史 |
+| Search | [SearchReq](#helmapi.SearchReq) | [SearchRes](#helmapi.SearchRes) | Search 查找某个repo的chart |
+| All | [ListChartReq](#helmapi.ListChartReq) | [SearchRes](#helmapi.SearchRes) | All 列出某个context所有的chart |
 
-| Method Name       | Request Type                                          | Response Type                                    | Description                                                  |
-| ----------------- | ----------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
-| CreateContext     | [HelmContextReq](#helmapi.HelmContextReq)             | [HelmContextRes](#helmapi.HelmContextRes)        | CreateContext 创建context context 持有了k8s集群资源操作权限和harbor登录信息。所以这些信息可以通过context复用。 The context holds k8s cluster resource operation authority and harbor login information. So this information can be reuse through context. |
-| DeleteContext     | [DeleteHelmContextReq](#helmapi.DeleteHelmContextReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | DeleteContext 删除context                                    |
-| UpdateRepo        | [UpdateRepoReq](#helmapi.UpdateRepoReq)               | [.google.protobuf.Empty](#google.protobuf.Empty) | UpdateRepo 更新context 内repo 信息                           |
-| InstallRelease    | [InstallReq](#helmapi.InstallReq)                     | [Release](#helmapi.Release)                      | InstallRelease 安装charts                                    |
-| UpgradeRelease    | [UpgradeReq](#helmapi.UpgradeReq)                     | [Release](#helmapi.Release)                      | UpgradeRelease 更新release                                   |
-| UninstallRelease  | [ReleaseReq](#helmapi.ReleaseReq)                     | [.google.protobuf.Empty](#google.protobuf.Empty) | UninstallRelease 删除release                                 |
-| GetChart          | [GetChartReq](#helmapi.GetChartReq)                   | [Chart](#helmapi.Chart)                          | GetChart 获取 chart 信息                                     |
-| GetRelease        | [ReleaseReq](#helmapi.ReleaseReq)                     | [Release](#helmapi.Release)                      | GetRelease 获取某个release实例信息                           |
-| GetReleaseValues  | [ReleaseReq](#helmapi.ReleaseReq)                     | [Values](#helmapi.Values)                        | GetReleaseValues 某个release实例values信息                   |
-| ListRelease       | [ListReleaseReq](#helmapi.ListReleaseReq)             | [ListReleaseRes](#helmapi.ListReleaseRes)        | ListRelease 列出某个context下全部release.                    |
-| RollbackRelease   | [ReleaseRollbackReq](#helmapi.ReleaseRollbackReq)     | [.google.protobuf.Empty](#google.protobuf.Empty) | RollbackRelease 回滚某个release                              |
-| GetReleaseHistory | [ReleaseReq](#helmapi.ReleaseReq)                     | [ListReleaseRes](#helmapi.ListReleaseRes)        | GetReleaseHistory 列出release 历史                           |
-
-
-
-### Key
+### Key 关键词
 1. Context 
    * context 存储了k8s权限和helm repository。所以用户可以通过context 复用这些信息。
-   * The context stores k8s permissions and helm repository. So users can reuse this information through context.
-2. contextName
-   * 如果用户请求中带有contextName 请求会使用对应context 存储的k8s权限和helm repository。如果请求不带有contextName，请求会根据RepoInfo 和 KubeInfo创建一个临时的context。
-   * If the user request contains a contextName request, the k8s permission and helm repository stored in the corresponding context will be used. If the request does not have a contextName, the request will create a temporary context based on RepoInfo and KubeInfo.
+2. ContextName
+   * 如果用户请求中带有ContextName 请求会使用对应context 存储的k8s权限和helm repository。如果请求不带有contextName，请求会根据RepoInfo 和 KubeInfo创建一个临时的context。
 
 ### Installation
+* git clone git@github.com:weapons97/helm-api.git
+* cd helm-api
 * kubectl install -f deploy
 
 ### DOC
-just look at doc/doc.md
+请看 doc/doc.md
 
 ### HTTP
-just look at swagger/helm-api.swagger.json
+请看 swagger/helm-api.swagger.json
 
 ### GRPC
-just look at protos/helm-api.proto
+请看 protos/helm-api.proto
 
 ### Examples
 
@@ -55,17 +52,11 @@ cd ./examples 打开此目录，运行一下脚本以验证接口。
 
 * 确保你安装了 nodejs 环境。
 
-install nodejs
-
-```bash
-# ubuntu
-sudo apt-get install nodejs
-# mac
-brew install node
-```
-
-
-
+0. 指定ip和端口
+   ```bash
+   export host=<你的 helm-api host>
+   export port=<你的 helm-api port>
+   ```
 1. 创建context。
 
    ``` bash

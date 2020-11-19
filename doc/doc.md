@@ -95,7 +95,7 @@ DeleteHelmContextReq
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  | name is what context name you what delete. |
+| name | [string](#string) |  | name 唯一的context 标识。 |
 
 
 
@@ -136,7 +136,7 @@ Appending `index.yaml` to this string should result in a URL that can be used to
 <a name="helmapi.Entry"></a>
 
 ### Entry
-Entry represents a collection of parameters for chart repository.
+Entry 提供 chart repository 信息
 
 
 | Field | Type | Label | Description |
@@ -158,10 +158,7 @@ Entry represents a collection of parameters for chart repository.
 <a name="helmapi.File"></a>
 
 ### File
-File represents a file as a name/value pair.
 
-By convention, name is a relative path within the scope of the chart&#39;s
-base directory.
 
 
 | Field | Type | Label | Description |
@@ -182,11 +179,11 @@ base directory.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contextName | [string](#string) |  | contextName is name of CreateHelmContext return |
-| repo | [string](#string) |  | repo is name of entry your used create or update repository |
+| contextName | [string](#string) |  | contextName 唯一的context 标识。（可选） |
+| repo | [string](#string) |  |  |
 | chartName | [string](#string) |  |  |
 | chartVersion | [string](#string) |  |  |
-| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo or contextName |
+| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo 如果没有contextName，但是有RepoInfo会创建一个临时的context。 |
 
 
 
@@ -201,11 +198,11 @@ HelmContextReq
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  | name is what context name you what, and if null will gennerate a random name. |
-| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo |
-| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo |
-| incluster | [bool](#bool) |  | If incluster is true, use serviceaccount instead of KubeInfo for authorization. |
-| expiry | [int64](#int64) |  | if expiry is not null, context will delete after expiry |
+| name | [string](#string) |  | name 唯一的context 标识。冲突则会覆盖。 |
+| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo 提供。 |
+| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo 提供 chart repository 相关信息。 |
+| incluster | [bool](#bool) |  | incluster 为true 时，会用sa 为helm-api 提供k8s的访问权限。 |
+| expiry | [int64](#int64) |  | expiry 是超时的时间戳，超过此值，context会被回收。 |
 
 
 
@@ -289,20 +286,20 @@ Info describes release information.
 <a name="helmapi.InstallReq"></a>
 
 ### InstallReq
-InstallReq represents a infomation of install charts.
+InstallReq 安装chart的请求
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contextName | [string](#string) |  | contextName is name of CreateHelmContext return (option) |
+| contextName | [string](#string) |  | contextName 唯一的context 标识。（可选） |
 | repoChartName | [string](#string) |  |  |
-| chartVersion | [string](#string) |  |  |
-| namespace | [string](#string) |  | if namespace is null it server will use context namespace |
-| values | [string](#string) |  | values as same as --values which specify values in YAML format |
+| chartVersion | [string](#string) |  | chartVersion 为空会使用最新版本（可选） |
+| namespace | [string](#string) |  | namespace 为空会使用context 默认的空间 （可选） |
+| values | [string](#string) |  | values 是yaml格式的value文件的内容。（可选） |
 | releaseName | [string](#string) |  |  |
-| dry_run | [bool](#bool) |  | dry_run simulate an install |
-| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo or contextName |
-| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo or contextName |
+| dry_run | [bool](#bool) |  | dry_run 为true 不会真实的部署release。 |
+| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。 |
+| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。 |
 
 
 
@@ -317,9 +314,9 @@ InstallReq represents a infomation of install charts.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| kubeconfig | [string](#string) |  | kubeconfig is a content of kubeconfig, ignored when incluster is true. |
-| context | [string](#string) |  | context is context of your kubeconfig, ignored when incluster is true. |
-| namespace | [string](#string) |  | namespace is namespace in k8s what your helmcontext managing. |
+| kubeconfig | [string](#string) |  | kubeconfig kubeconfig 的内容，你可以在~/.kube.config下找到它。 |
+| context | [string](#string) |  | context 指定kubeconfig中哪个context被使用。 |
+| namespace | [string](#string) |  | namespace 指定使用的工作空间。 |
 
 
 
@@ -350,9 +347,9 @@ InstallReq represents a infomation of install charts.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contextName | [string](#string) |  | contextName is name of CreateHelmContext return |
-| namespace | [string](#string) |  | if namespace is null it server will use context namespace |
-| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo or contextName |
+| contextName | [string](#string) |  | contextName 唯一的context 标识。（可选） |
+| namespace | [string](#string) |  | namespace 为空会使用context 默认的空间 （可选） |
+| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo 如果没有contextName，但是有KubeInfo会创建一个临时的context。 |
 
 
 
@@ -469,10 +466,10 @@ and the variables used to deploy that chart.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contextName | [string](#string) |  | contextName is name of CreateHelmContext return |
+| contextName | [string](#string) |  | contextName 唯一的context 标识。（可选） |
 | releaseName | [string](#string) |  |  |
-| namespace | [string](#string) |  | if namespace is null it server will use context namespace |
-| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo or contextName |
+| namespace | [string](#string) |  | namespace 为空会使用context 默认的空间 （可选） |
+| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo 如果没有contextName，但是有KubeInfo会创建一个临时的context。 |
 
 
 
@@ -487,12 +484,12 @@ and the variables used to deploy that chart.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contextName | [string](#string) |  | contextName is name of CreateHelmContext return |
+| contextName | [string](#string) |  | contextName 唯一的context 标识。（可选） |
 | releaseName | [string](#string) |  |  |
 | reversion | [int32](#int32) |  |  |
-| namespace | [string](#string) |  | if namespace is null it server will use context namespace |
-| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo or contextName |
-| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo or contextName |
+| namespace | [string](#string) |  | namespace 为空会使用context 默认的空间 （可选） |
+| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。 |
+| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。 |
 
 
 
@@ -507,7 +504,7 @@ and the variables used to deploy that chart.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| entrys | [Entry](#helmapi.Entry) | repeated | entrys is infomation for repo login and repo update. |
+| entrys | [Entry](#helmapi.Entry) | repeated | entrys 提供 一组 chart repository 信息 |
 
 
 
@@ -555,7 +552,7 @@ SearchReq
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contextName | [string](#string) |  | contextName is what context name you what, and if null will gennerate a random name. |
+| contextName | [string](#string) |  | contextName 唯一的context 标识。 |
 | repoinfo | [RepoInfo](#helmapi.RepoInfo) |  |  |
 
 
@@ -566,22 +563,22 @@ SearchReq
 <a name="helmapi.UpgradeReq"></a>
 
 ### UpgradeReq
-UpgradeReq represents a infomation of upgrade release.
+UpgradeReq 升级release的请求。
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| contextName | [string](#string) |  | contextName is name of CreateHelmContext return |
+| contextName | [string](#string) |  | contextName 唯一的context 标识。（可选） |
 | repoChartName | [string](#string) |  |  |
 | chartVersion | [string](#string) |  |  |
-| namespace | [string](#string) |  | if namespace is null it server will use context namespace |
-| values | [string](#string) |  | values as same as --values which specify values in YAML format |
+| namespace | [string](#string) |  | namespace 为空会使用context 默认的空间 （可选） |
+| values | [string](#string) |  | values 是yaml格式的value文件的内容。（可选） |
 | releaseName | [string](#string) |  |  |
-| dry_run | [bool](#bool) |  | dry_run simulate an install |
-| history_max | [int32](#int32) |  | history_max is max count of history |
-| reset_values | [bool](#bool) |  | reset_values will reset the values to the chart&#39;s built-ins rather than merging with existing. |
-| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo or contextName |
-| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo or contextName |
+| dry_run | [bool](#bool) |  | dry_run 为true 不会真实的部署release。 |
+| history_max | [int32](#int32) |  |  |
+| reset_values | [bool](#bool) |  |  |
+| kubeinfo | [KubeInfo](#helmapi.KubeInfo) |  | KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。 |
+| repoinfo | [RepoInfo](#helmapi.RepoInfo) |  | RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。 |
 
 
 
@@ -596,7 +593,7 @@ UpgradeReq represents a infomation of upgrade release.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| yaml | [string](#string) |  | yaml is default |
+| yaml | [string](#string) |  |  |
 
 
 
@@ -616,7 +613,7 @@ HelmApiService
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| CreateContext | [HelmContextReq](#helmapi.HelmContextReq) | [HelmContextRes](#helmapi.HelmContextRes) | CreateContext 创建context context 持有了k8s集群资源操作权限和harbor登录信息。所以这些信息可以通过context复用。 The context holds k8s cluster resource operation authority and harbor login information. So this information can be reuse through context. |
+| CreateContext | [HelmContextReq](#helmapi.HelmContextReq) | [HelmContextRes](#helmapi.HelmContextRes) | CreateContext 创建context |
 | DeleteContext | [DeleteHelmContextReq](#helmapi.DeleteHelmContextReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | DeleteContext 删除context |
 | UpdateRepo | [UpdateRepoReq](#helmapi.UpdateRepoReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | UpdateRepo 更新context 内repo 信息 |
 | InstallRelease | [InstallReq](#helmapi.InstallReq) | [Release](#helmapi.Release) | InstallRelease 安装charts |
@@ -628,8 +625,8 @@ HelmApiService
 | ListRelease | [ListReleaseReq](#helmapi.ListReleaseReq) | [ListReleaseRes](#helmapi.ListReleaseRes) | ListRelease 列出某个context下全部release. |
 | RollbackRelease | [ReleaseRollbackReq](#helmapi.ReleaseRollbackReq) | [.google.protobuf.Empty](#google.protobuf.Empty) | RollbackRelease 回滚某个release |
 | GetReleaseHistory | [ReleaseReq](#helmapi.ReleaseReq) | [ListReleaseRes](#helmapi.ListReleaseRes) | GetReleaseHistory 列出release 历史 |
-| Search | [SearchReq](#helmapi.SearchReq) | [SearchRes](#helmapi.SearchRes) | Search search charts |
-| All | [ListChartReq](#helmapi.ListChartReq) | [SearchRes](#helmapi.SearchRes) | list all charts |
+| Search | [SearchReq](#helmapi.SearchReq) | [SearchRes](#helmapi.SearchRes) | Search 查找某个repo的chart |
+| All | [ListChartReq](#helmapi.ListChartReq) | [SearchRes](#helmapi.SearchRes) | All 列出某个context所有的chart |
 
  
 

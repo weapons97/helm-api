@@ -13,7 +13,7 @@
   "paths": {
     "/v1/context": {
       "post": {
-        "summary": "CreateContext 创建context\ncontext 持有了k8s集群资源操作权限和harbor登录信息。所以这些信息可以通过context复用。\nThe context holds k8s cluster resource operation authority and harbor login information. So this information can be reuse through context.",
+        "summary": "CreateContext 创建context",
         "operationId": "HelmApiService_CreateContext",
         "responses": {
           "200": {
@@ -65,7 +65,7 @@
         "parameters": [
           {
             "name": "name",
-            "description": "name is what context name you what delete.",
+            "description": "name 唯一的context 标识。",
             "in": "path",
             "required": true,
             "type": "string"
@@ -78,7 +78,7 @@
     },
     "/v1/{contextName}/chart": {
       "get": {
-        "summary": "list all charts",
+        "summary": "All 列出某个context所有的chart",
         "operationId": "HelmApiService_All",
         "responses": {
           "200": {
@@ -129,14 +129,13 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
           },
           {
             "name": "repo",
-            "description": "repo is name of entry your used create or update repository",
             "in": "path",
             "required": true,
             "type": "string"
@@ -188,7 +187,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
@@ -226,7 +225,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
@@ -266,7 +265,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
@@ -279,28 +278,28 @@
           },
           {
             "name": "namespace",
-            "description": "if namespace is null it server will use context namespace.",
+            "description": "namespace 为空会使用context 默认的空间 （可选）.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "kubeinfo.kubeconfig",
-            "description": "kubeconfig is a content of kubeconfig, ignored when incluster is true.",
+            "description": "kubeconfig kubeconfig 的内容，你可以在~/.kube.config下找到它。.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "kubeinfo.context",
-            "description": "context is context of your kubeconfig, ignored when incluster is true.",
+            "description": "context 指定kubeconfig中哪个context被使用。.",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "kubeinfo.namespace",
-            "description": "namespace is namespace in k8s what your helmcontext managing.",
+            "description": "namespace 指定使用的工作空间。.",
             "in": "query",
             "required": false,
             "type": "string"
@@ -330,7 +329,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
@@ -376,7 +375,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
@@ -422,7 +421,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
@@ -468,7 +467,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is name of CreateHelmContext return",
+            "description": "contextName 唯一的context 标识。（可选）",
             "in": "path",
             "required": true,
             "type": "string"
@@ -514,7 +513,7 @@
         "parameters": [
           {
             "name": "contextName",
-            "description": "contextName is what context name you what, and if null will gennerate a random name.",
+            "description": "contextName 唯一的context 标识。",
             "in": "path",
             "required": true,
             "type": "string"
@@ -535,7 +534,7 @@
     },
     "/v1/{contextName}/search/{keyword}/{regexp}": {
       "get": {
-        "summary": "Search search charts",
+        "summary": "Search 查找某个repo的chart",
         "operationId": "HelmApiService_Search",
         "responses": {
           "200": {
@@ -704,7 +703,7 @@
           "type": "boolean"
         }
       },
-      "description": "Entry represents a collection of parameters for chart repository."
+      "title": "Entry 提供 chart repository 信息"
     },
     "helmapiFile": {
       "type": "object",
@@ -717,19 +716,17 @@
           "type": "string",
           "description": "Data is the template as byte data."
         }
-      },
-      "description": "File represents a file as a name/value pair.\n\nBy convention, name is a relative path within the scope of the chart's\nbase directory."
+      }
     },
     "helmapiGetChartReq": {
       "type": "object",
       "properties": {
         "contextName": {
           "type": "string",
-          "title": "contextName is name of CreateHelmContext return"
+          "title": "contextName 唯一的context 标识。（可选）"
         },
         "repo": {
-          "type": "string",
-          "title": "repo is name of entry your used create or update repository"
+          "type": "string"
         },
         "chartName": {
           "type": "string"
@@ -739,7 +736,7 @@
         },
         "repoinfo": {
           "$ref": "#/definitions/helmapiRepoInfo",
-          "title": "RepoInfo or contextName"
+          "title": "RepoInfo 如果没有contextName，但是有RepoInfo会创建一个临时的context。"
         }
       }
     },
@@ -748,24 +745,24 @@
       "properties": {
         "name": {
           "type": "string",
-          "description": "name is what context name you what, and if null will gennerate a random name."
+          "title": "name 唯一的context 标识。冲突则会覆盖。"
         },
         "kubeinfo": {
           "$ref": "#/definitions/helmapiKubeInfo",
-          "title": "KubeInfo"
+          "title": "KubeInfo 提供。"
         },
         "repoinfo": {
           "$ref": "#/definitions/helmapiRepoInfo",
-          "title": "RepoInfo"
+          "title": "RepoInfo 提供 chart repository 相关信息。"
         },
         "incluster": {
           "type": "boolean",
-          "description": "If incluster is true, use serviceaccount instead of KubeInfo for authorization."
+          "title": "incluster 为true 时，会用sa 为helm-api 提供k8s的访问权限。"
         },
         "expiry": {
           "type": "string",
           "format": "int64",
-          "title": "if expiry is not null, context will delete after expiry"
+          "title": "expiry 是超时的时间戳，超过此值，context会被回收。"
         }
       },
       "title": "HelmContextReq"
@@ -881,54 +878,55 @@
       "properties": {
         "contextName": {
           "type": "string",
-          "title": "contextName is name of CreateHelmContext return (option)"
+          "title": "contextName 唯一的context 标识。（可选）"
         },
         "repoChartName": {
           "type": "string"
         },
         "chartVersion": {
-          "type": "string"
+          "type": "string",
+          "title": "chartVersion 为空会使用最新版本（可选）"
         },
         "namespace": {
           "type": "string",
-          "title": "if namespace is null it server will use context namespace"
+          "title": "namespace 为空会使用context 默认的空间 （可选）"
         },
         "values": {
           "type": "string",
-          "title": "values as same as --values which specify values in YAML format"
+          "title": "values 是yaml格式的value文件的内容。（可选）"
         },
         "releaseName": {
           "type": "string"
         },
         "dryRun": {
           "type": "boolean",
-          "title": "dry_run simulate an install"
+          "title": "dry_run 为true 不会真实的部署release。"
         },
         "kubeinfo": {
           "$ref": "#/definitions/helmapiKubeInfo",
-          "title": "KubeInfo or contextName"
+          "title": "KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。"
         },
         "repoinfo": {
           "$ref": "#/definitions/helmapiRepoInfo",
-          "title": "RepoInfo or contextName"
+          "title": "RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。"
         }
       },
-      "description": "InstallReq represents a infomation of install charts."
+      "title": "InstallReq 安装chart的请求"
     },
     "helmapiKubeInfo": {
       "type": "object",
       "properties": {
         "kubeconfig": {
           "type": "string",
-          "description": "kubeconfig is a content of kubeconfig, ignored when incluster is true."
+          "title": "kubeconfig kubeconfig 的内容，你可以在~/.kube.config下找到它。"
         },
         "context": {
           "type": "string",
-          "description": "context is context of your kubeconfig, ignored when incluster is true."
+          "title": "context 指定kubeconfig中哪个context被使用。"
         },
         "namespace": {
           "type": "string",
-          "description": "namespace is namespace in k8s what your helmcontext managing."
+          "title": "namespace 指定使用的工作空间。"
         }
       }
     },
@@ -937,15 +935,15 @@
       "properties": {
         "contextName": {
           "type": "string",
-          "title": "contextName is name of CreateHelmContext return"
+          "title": "contextName 唯一的context 标识。（可选）"
         },
         "namespace": {
           "type": "string",
-          "title": "if namespace is null it server will use context namespace"
+          "title": "namespace 为空会使用context 默认的空间 （可选）"
         },
         "kubeinfo": {
           "$ref": "#/definitions/helmapiKubeInfo",
-          "title": "KubeInfo or contextName"
+          "title": "KubeInfo 如果没有contextName，但是有KubeInfo会创建一个临时的context。"
         }
       }
     },
@@ -1114,18 +1112,18 @@
       "properties": {
         "contextName": {
           "type": "string",
-          "title": "contextName is name of CreateHelmContext return"
+          "title": "contextName 唯一的context 标识。（可选）"
         },
         "releaseName": {
           "type": "string"
         },
         "namespace": {
           "type": "string",
-          "title": "if namespace is null it server will use context namespace"
+          "title": "namespace 为空会使用context 默认的空间 （可选）"
         },
         "kubeinfo": {
           "$ref": "#/definitions/helmapiKubeInfo",
-          "title": "KubeInfo or contextName"
+          "title": "KubeInfo 如果没有contextName，但是有KubeInfo会创建一个临时的context。"
         }
       }
     },
@@ -1134,7 +1132,7 @@
       "properties": {
         "contextName": {
           "type": "string",
-          "title": "contextName is name of CreateHelmContext return"
+          "title": "contextName 唯一的context 标识。（可选）"
         },
         "releaseName": {
           "type": "string"
@@ -1145,15 +1143,15 @@
         },
         "namespace": {
           "type": "string",
-          "title": "if namespace is null it server will use context namespace"
+          "title": "namespace 为空会使用context 默认的空间 （可选）"
         },
         "kubeinfo": {
           "$ref": "#/definitions/helmapiKubeInfo",
-          "title": "KubeInfo or contextName"
+          "title": "KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。"
         },
         "repoinfo": {
           "$ref": "#/definitions/helmapiRepoInfo",
-          "title": "RepoInfo or contextName"
+          "title": "RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。"
         }
       }
     },
@@ -1165,7 +1163,7 @@
           "items": {
             "$ref": "#/definitions/helmapiEntry"
           },
-          "description": "entrys is infomation for repo login and repo update."
+          "title": "entrys 提供 一组 chart repository 信息"
         }
       }
     },
@@ -1185,7 +1183,7 @@
       "properties": {
         "contextName": {
           "type": "string",
-          "description": "contextName is what context name you what, and if null will gennerate a random name."
+          "title": "contextName 唯一的context 标识。"
         },
         "repoinfo": {
           "$ref": "#/definitions/helmapiRepoInfo"
@@ -1197,7 +1195,7 @@
       "properties": {
         "contextName": {
           "type": "string",
-          "title": "contextName is name of CreateHelmContext return"
+          "title": "contextName 唯一的context 标识。（可选）"
         },
         "repoChartName": {
           "type": "string"
@@ -1207,45 +1205,42 @@
         },
         "namespace": {
           "type": "string",
-          "title": "if namespace is null it server will use context namespace"
+          "title": "namespace 为空会使用context 默认的空间 （可选）"
         },
         "values": {
           "type": "string",
-          "title": "values as same as --values which specify values in YAML format"
+          "title": "values 是yaml格式的value文件的内容。（可选）"
         },
         "releaseName": {
           "type": "string"
         },
         "dryRun": {
           "type": "boolean",
-          "title": "dry_run simulate an install"
+          "title": "dry_run 为true 不会真实的部署release。"
         },
         "historyMax": {
           "type": "integer",
-          "format": "int32",
-          "title": "history_max is max count of history"
+          "format": "int32"
         },
         "resetValues": {
-          "type": "boolean",
-          "description": "reset_values will reset the values to the chart's built-ins rather than merging with existing."
+          "type": "boolean"
         },
         "kubeinfo": {
           "$ref": "#/definitions/helmapiKubeInfo",
-          "title": "KubeInfo or contextName"
+          "title": "KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。"
         },
         "repoinfo": {
           "$ref": "#/definitions/helmapiRepoInfo",
-          "title": "RepoInfo or contextName"
+          "title": "RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。"
         }
       },
-      "description": "UpgradeReq represents a infomation of upgrade release."
+      "title": "UpgradeReq 升级release的请求。"
     },
     "helmapiValues": {
       "type": "object",
       "properties": {
         "yaml": {
-          "type": "string",
-          "title": "yaml is default"
+          "type": "string"
         }
       }
     },

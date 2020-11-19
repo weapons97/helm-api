@@ -46,7 +46,7 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-// Entry represents a collection of parameters for chart repository.
+// Entry 提供 chart repository 信息
 type Entry struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -156,15 +156,15 @@ type HelmContextReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// name is what context name you what, and if null will gennerate a random name.
+	// name 唯一的context 标识。冲突则会覆盖。
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// KubeInfo
+	// KubeInfo 提供。
 	Kubeinfo *KubeInfo `protobuf:"bytes,2,opt,name=kubeinfo,proto3" json:"kubeinfo,omitempty"`
-	// RepoInfo
+	// RepoInfo 提供 chart repository 相关信息。
 	Repoinfo *RepoInfo `protobuf:"bytes,3,opt,name=repoinfo,proto3" json:"repoinfo,omitempty"`
-	// If incluster is true, use serviceaccount instead of KubeInfo for authorization.
+	// incluster 为true 时，会用sa 为helm-api 提供k8s的访问权限。
 	Incluster bool `protobuf:"varint,6,opt,name=incluster,proto3" json:"incluster,omitempty"`
-	// if expiry is not null, context will delete after expiry
+	// expiry 是超时的时间戳，超过此值，context会被回收。
 	Expiry int64 `protobuf:"varint,7,opt,name=expiry,proto3" json:"expiry,omitempty"`
 }
 
@@ -240,11 +240,11 @@ type KubeInfo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// kubeconfig is a content of kubeconfig, ignored when incluster is true.
+	// kubeconfig kubeconfig 的内容，你可以在~/.kube.config下找到它。
 	Kubeconfig string `protobuf:"bytes,3,opt,name=kubeconfig,proto3" json:"kubeconfig,omitempty"`
-	// context is context of your kubeconfig, ignored when incluster is true.
+	// context 指定kubeconfig中哪个context被使用。
 	Context string `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
-	// namespace is namespace in k8s what your helmcontext managing.
+	// namespace 指定使用的工作空间。
 	Namespace string `protobuf:"bytes,5,opt,name=namespace,proto3" json:"namespace,omitempty"`
 }
 
@@ -306,7 +306,7 @@ type RepoInfo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// entrys is infomation for repo login and repo update.
+	// entrys 提供 一组 chart repository 信息
 	Entrys []*Entry `protobuf:"bytes,2,rep,name=entrys,proto3" json:"entrys,omitempty"`
 }
 
@@ -355,7 +355,7 @@ type DeleteHelmContextReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// name is what context name you what delete.
+	// name 唯一的context 标识。
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 }
 
@@ -403,7 +403,7 @@ type UpdateRepoReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// contextName is what context name you what, and if null will gennerate a random name.
+	// contextName 唯一的context 标识。
 	ContextName string    `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
 	Repoinfo    *RepoInfo `protobuf:"bytes,2,opt,name=repoinfo,proto3" json:"repoinfo,omitempty"`
 }
@@ -502,26 +502,27 @@ func (x *HelmContextRes) GetName() string {
 	return ""
 }
 
-// InstallReq represents a infomation of install charts.
+// InstallReq 安装chart的请求
 type InstallReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// contextName is name of CreateHelmContext return (option)
+	// contextName 唯一的context 标识。（可选）
 	ContextName   string `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
 	RepoChartName string `protobuf:"bytes,2,opt,name=repoChartName,proto3" json:"repoChartName,omitempty"`
-	ChartVersion  string `protobuf:"bytes,3,opt,name=chartVersion,proto3" json:"chartVersion,omitempty"`
-	// if namespace is null it server will use context namespace
+	// chartVersion 为空会使用最新版本（可选）
+	ChartVersion string `protobuf:"bytes,3,opt,name=chartVersion,proto3" json:"chartVersion,omitempty"`
+	// namespace 为空会使用context 默认的空间 （可选）
 	Namespace string `protobuf:"bytes,4,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	// values as same as --values which specify values in YAML format
+	// values 是yaml格式的value文件的内容。（可选）
 	Values      string `protobuf:"bytes,6,opt,name=values,proto3" json:"values,omitempty"`
 	ReleaseName string `protobuf:"bytes,7,opt,name=releaseName,proto3" json:"releaseName,omitempty"`
-	// dry_run simulate an install
+	// dry_run 为true 不会真实的部署release。
 	DryRun bool `protobuf:"varint,9,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
-	// KubeInfo or contextName
+	// KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。
 	Kubeinfo *KubeInfo `protobuf:"bytes,12,opt,name=kubeinfo,proto3" json:"kubeinfo,omitempty"`
-	// RepoInfo or contextName
+	// RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。
 	Repoinfo *RepoInfo `protobuf:"bytes,13,opt,name=repoinfo,proto3" json:"repoinfo,omitempty"`
 }
 
@@ -620,30 +621,28 @@ func (x *InstallReq) GetRepoinfo() *RepoInfo {
 	return nil
 }
 
-// UpgradeReq represents a infomation of upgrade release.
+// UpgradeReq 升级release的请求。
 type UpgradeReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// contextName is name of CreateHelmContext return
+	// contextName 唯一的context 标识。（可选）
 	ContextName   string `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
 	RepoChartName string `protobuf:"bytes,2,opt,name=repoChartName,proto3" json:"repoChartName,omitempty"`
 	ChartVersion  string `protobuf:"bytes,3,opt,name=chartVersion,proto3" json:"chartVersion,omitempty"`
-	// if namespace is null it server will use context namespace
+	// namespace 为空会使用context 默认的空间 （可选）
 	Namespace string `protobuf:"bytes,4,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	// values as same as --values which specify values in YAML format
+	// values 是yaml格式的value文件的内容。（可选）
 	Values      string `protobuf:"bytes,6,opt,name=values,proto3" json:"values,omitempty"`
 	ReleaseName string `protobuf:"bytes,7,opt,name=releaseName,proto3" json:"releaseName,omitempty"`
-	// dry_run simulate an install
-	DryRun bool `protobuf:"varint,9,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
-	// history_max is max count of history
-	HistoryMax int32 `protobuf:"varint,10,opt,name=history_max,json=historyMax,proto3" json:"history_max,omitempty"`
-	// reset_values will reset the values to the chart's built-ins rather than merging with existing.
-	ResetValues bool `protobuf:"varint,11,opt,name=reset_values,json=resetValues,proto3" json:"reset_values,omitempty"`
-	// KubeInfo or contextName
+	// dry_run 为true 不会真实的部署release。
+	DryRun      bool  `protobuf:"varint,9,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	HistoryMax  int32 `protobuf:"varint,10,opt,name=history_max,json=historyMax,proto3" json:"history_max,omitempty"`
+	ResetValues bool  `protobuf:"varint,11,opt,name=reset_values,json=resetValues,proto3" json:"reset_values,omitempty"`
+	// KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。
 	Kubeinfo *KubeInfo `protobuf:"bytes,12,opt,name=kubeinfo,proto3" json:"kubeinfo,omitempty"`
-	// RepoInfo or contextName
+	// RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。
 	Repoinfo *RepoInfo `protobuf:"bytes,13,opt,name=repoinfo,proto3" json:"repoinfo,omitempty"`
 }
 
@@ -761,13 +760,12 @@ type GetChartReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// contextName is name of CreateHelmContext return
-	ContextName string `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
-	// repo is name of entry your used create or update repository
+	// contextName 唯一的context 标识。（可选）
+	ContextName  string `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
 	Repo         string `protobuf:"bytes,2,opt,name=repo,proto3" json:"repo,omitempty"`
 	ChartName    string `protobuf:"bytes,3,opt,name=chartName,proto3" json:"chartName,omitempty"`
 	ChartVersion string `protobuf:"bytes,4,opt,name=chartVersion,proto3" json:"chartVersion,omitempty"`
-	// RepoInfo or contextName
+	// RepoInfo 如果没有contextName，但是有RepoInfo会创建一个临时的context。
 	Repoinfo *RepoInfo `protobuf:"bytes,11,opt,name=repoinfo,proto3" json:"repoinfo,omitempty"`
 }
 
@@ -843,12 +841,12 @@ type ReleaseReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// contextName is name of CreateHelmContext return
+	// contextName 唯一的context 标识。（可选）
 	ContextName string `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
 	ReleaseName string `protobuf:"bytes,2,opt,name=releaseName,proto3" json:"releaseName,omitempty"`
-	// if namespace is null it server will use context namespace
+	// namespace 为空会使用context 默认的空间 （可选）
 	Namespace string `protobuf:"bytes,4,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	// KubeInfo or contextName
+	// KubeInfo 如果没有contextName，但是有KubeInfo会创建一个临时的context。
 	Kubeinfo *KubeInfo `protobuf:"bytes,10,opt,name=kubeinfo,proto3" json:"kubeinfo,omitempty"`
 }
 
@@ -917,15 +915,15 @@ type ReleaseRollbackReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// contextName is name of CreateHelmContext return
+	// contextName 唯一的context 标识。（可选）
 	ContextName string `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
 	ReleaseName string `protobuf:"bytes,2,opt,name=releaseName,proto3" json:"releaseName,omitempty"`
 	Reversion   int32  `protobuf:"varint,3,opt,name=reversion,proto3" json:"reversion,omitempty"`
-	// if namespace is null it server will use context namespace
+	// namespace 为空会使用context 默认的空间 （可选）
 	Namespace string `protobuf:"bytes,4,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	// KubeInfo or contextName
+	// KubeInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。
 	Kubeinfo *KubeInfo `protobuf:"bytes,10,opt,name=kubeinfo,proto3" json:"kubeinfo,omitempty"`
-	// RepoInfo or contextName
+	// RepoInfo 如果没有contextName，但是有KubeInfo和RepoInfo会创建一个临时的context。
 	Repoinfo *RepoInfo `protobuf:"bytes,11,opt,name=repoinfo,proto3" json:"repoinfo,omitempty"`
 }
 
@@ -1008,7 +1006,6 @@ type Values struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// yaml is default
 	Yaml string `protobuf:"bytes,1,opt,name=yaml,proto3" json:"yaml,omitempty"`
 }
 
@@ -1056,11 +1053,11 @@ type ListReleaseReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// contextName is name of CreateHelmContext return
+	// contextName 唯一的context 标识。（可选）
 	ContextName string `protobuf:"bytes,1,opt,name=contextName,proto3" json:"contextName,omitempty"`
-	// if namespace is null it server will use context namespace
+	// namespace 为空会使用context 默认的空间 （可选）
 	Namespace string `protobuf:"bytes,4,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	// KubeInfo or contextName
+	// KubeInfo 如果没有contextName，但是有KubeInfo会创建一个临时的context。
 	Kubeinfo *KubeInfo `protobuf:"bytes,10,opt,name=kubeinfo,proto3" json:"kubeinfo,omitempty"`
 }
 
@@ -1164,10 +1161,6 @@ func (x *ListReleaseRes) GetReleases() []*Release {
 	return nil
 }
 
-// File represents a file as a name/value pair.
-//
-// By convention, name is a relative path within the scope of the chart's
-// base directory.
 type File struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -3254,8 +3247,6 @@ const _ = grpc.SupportPackageIsVersion6
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type HelmApiServiceClient interface {
 	// CreateContext 创建context
-	//context 持有了k8s集群资源操作权限和harbor登录信息。所以这些信息可以通过context复用。
-	//The context holds k8s cluster resource operation authority and harbor login information. So this information can be reuse through context.
 	CreateContext(ctx context.Context, in *HelmContextReq, opts ...grpc.CallOption) (*HelmContextRes, error)
 	// DeleteContext 删除context
 	DeleteContext(ctx context.Context, in *DeleteHelmContextReq, opts ...grpc.CallOption) (*empty.Empty, error)
@@ -3279,9 +3270,9 @@ type HelmApiServiceClient interface {
 	RollbackRelease(ctx context.Context, in *ReleaseRollbackReq, opts ...grpc.CallOption) (*empty.Empty, error)
 	// GetReleaseHistory 列出release 历史
 	GetReleaseHistory(ctx context.Context, in *ReleaseReq, opts ...grpc.CallOption) (*ListReleaseRes, error)
-	// Search search charts
+	// Search 查找某个repo的chart
 	Search(ctx context.Context, in *SearchReq, opts ...grpc.CallOption) (*SearchRes, error)
-	// list all charts
+	// All 列出某个context所有的chart
 	All(ctx context.Context, in *ListChartReq, opts ...grpc.CallOption) (*SearchRes, error)
 }
 
@@ -3422,8 +3413,6 @@ func (c *helmApiServiceClient) All(ctx context.Context, in *ListChartReq, opts .
 // HelmApiServiceServer is the server API for HelmApiService service.
 type HelmApiServiceServer interface {
 	// CreateContext 创建context
-	//context 持有了k8s集群资源操作权限和harbor登录信息。所以这些信息可以通过context复用。
-	//The context holds k8s cluster resource operation authority and harbor login information. So this information can be reuse through context.
 	CreateContext(context.Context, *HelmContextReq) (*HelmContextRes, error)
 	// DeleteContext 删除context
 	DeleteContext(context.Context, *DeleteHelmContextReq) (*empty.Empty, error)
@@ -3447,9 +3436,9 @@ type HelmApiServiceServer interface {
 	RollbackRelease(context.Context, *ReleaseRollbackReq) (*empty.Empty, error)
 	// GetReleaseHistory 列出release 历史
 	GetReleaseHistory(context.Context, *ReleaseReq) (*ListReleaseRes, error)
-	// Search search charts
+	// Search 查找某个repo的chart
 	Search(context.Context, *SearchReq) (*SearchRes, error)
-	// list all charts
+	// All 列出某个context所有的chart
 	All(context.Context, *ListChartReq) (*SearchRes, error)
 }
 
